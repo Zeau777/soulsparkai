@@ -438,7 +438,7 @@ useEffect(() => {
                     Edit Profile
                   </Button>
                   <Button variant="outline" className="w-full">
-                    Retake SoulScan Quiz
+                    Retake Check-In
                   </Button>
                 </div>
 

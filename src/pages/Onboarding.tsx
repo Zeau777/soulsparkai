@@ -15,11 +15,11 @@ import { Flame, ArrowLeft, ArrowRight } from 'lucide-react';
 interface OnboardingData {
   organizationCode: string;
   role: 'student' | 'employee' | 'athlete';
-  faithBackground: 'christian' | 'spiritual' | 'exploring' | 'other' | 'prefer_not_to_say';
   emotionalState: 'anxious' | 'peaceful' | 'lost' | 'tired' | 'joyful' | 'stressed' | 'hopeful' | 'overwhelmed' | 'grateful' | 'restless';
   personalGoals: string[];
   personalityStyle: 'introvert' | 'extrovert' | 'thinker' | 'feeler' | 'mixed';
   checkInKeywords: string[];
+  faithBackground: 'christian' | 'spiritual' | 'exploring' | 'other' | 'prefer_not_to_say';
 }
 
 export default function Onboarding() {
@@ -42,16 +42,16 @@ export default function Onboarding() {
     'Welcome',
     'Organization Code',
     'Role Selection',
-    'Faith Background',
-    'Emotional State',
-    'Personal Goals',
-    'Personality Style',
+    'Current Vibe',
+    "What You're Working Toward",
+    'Your Style',
     'Check-in Keywords'
   ];
 
   const personalGoalsOptions = [
-    'Find inner peace', 'Discover purpose', 'Personal growth', 'Spiritual development',
-    'Better relationships', 'Stress management', 'Emotional healing', 'Self-confidence'
+    'Find clarity', 'Build confidence', 'Personal growth', 'Better mindset',
+    'Stronger relationships', 'Manage stress', 'Emotional wellness', 'Self-awareness',
+    'Purpose & direction', 'Daily consistency'
   ];
 
   const checkInKeywordsOptions = [
@@ -121,8 +121,8 @@ export default function Onboarding() {
       });
 
       toast({
-        title: "Welcome to SoulSpark AI! 🎉",
-        description: "Your soul profile has been created. Let's begin your journey!"
+        title: "You're all set! 🎉",
+        description: "Your profile is ready. Let's get started on what matters most to you."
       });
 
       navigate('/dashboard');
@@ -160,7 +160,7 @@ export default function Onboarding() {
                 Welcome to SoulSpark AI
               </h2>
               <p className="text-muted-foreground mt-2">
-                Let's create your personalized soul-care experience in just a few minutes.
+                Let's get you set up with a quick 1-minute check-in so we can personalize your experience.
               </p>
             </div>
           </div>
@@ -211,30 +211,47 @@ export default function Onboarding() {
       case 3:
         return (
           <div className="space-y-4">
-            <Label>What's your faith background?</Label>
+            <Label>How are you feeling right now?</Label>
+            <p className="text-sm text-muted-foreground">Pick what resonates most with your current vibe.</p>
             <RadioGroup
-              value={data.faithBackground}
-              onValueChange={(value: any) => setData({ ...data, faithBackground: value })}
+              value={data.emotionalState}
+              onValueChange={(value: any) => setData({ ...data, emotionalState: value })}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="christian" id="christian" />
-                <Label htmlFor="christian">Christian</Label>
+                <RadioGroupItem value="peaceful" id="peaceful" />
+                <Label htmlFor="peaceful">Peaceful & calm</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="spiritual" id="spiritual" />
-                <Label htmlFor="spiritual">Spiritual but not religious</Label>
+                <RadioGroupItem value="joyful" id="joyful" />
+                <Label htmlFor="joyful">Happy & energized</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="exploring" id="exploring" />
-                <Label htmlFor="exploring">Exploring/Questioning</Label>
+                <RadioGroupItem value="hopeful" id="hopeful" />
+                <Label htmlFor="hopeful">Hopeful & optimistic</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="other" id="other" />
-                <Label htmlFor="other">Other faith tradition</Label>
+                <RadioGroupItem value="anxious" id="anxious" />
+                <Label htmlFor="anxious">Anxious or worried</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="prefer_not_to_say" id="prefer_not_to_say" />
-                <Label htmlFor="prefer_not_to_say">Prefer not to say</Label>
+                <RadioGroupItem value="stressed" id="stressed" />
+                <Label htmlFor="stressed">Stressed or overwhelmed</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="tired" id="tired" />
+                <Label htmlFor="tired">Tired or burnt out</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="lost" id="lost" />
+                <Label htmlFor="lost">Lost or uncertain</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="restless" id="restless" />
+                <Label htmlFor="restless">Restless or unmotivated</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="grateful" id="grateful" />
+                <Label htmlFor="grateful">Grateful & content</Label>
               </div>
             </RadioGroup>
           </div>
@@ -243,33 +260,15 @@ export default function Onboarding() {
       case 4:
         return (
           <div className="space-y-4">
-            <Label>How are you feeling today?</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {['anxious', 'peaceful', 'lost', 'tired', 'joyful', 'stressed', 'hopeful', 'overwhelmed', 'grateful', 'restless'].map((mood) => (
-                <Button
-                  key={mood}
-                  variant={data.emotionalState === mood ? "default" : "outline"}
-                  onClick={() => setData({ ...data, emotionalState: mood as any })}
-                  className="justify-start"
-                >
-                  {mood}
-                </Button>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-4">
-            <Label>What are your personal goals? (Select all that apply)</Label>
+            <Label>What are you working toward?</Label>
+            <p className="text-sm text-muted-foreground">Choose what matters most to you right now. (Select all that apply)</p>
             <div className="flex flex-wrap gap-2">
               {personalGoalsOptions.map((goal) => (
                 <Badge
                   key={goal}
                   variant={data.personalGoals.includes(goal) ? "default" : "outline"}
                   className="cursor-pointer"
-                  onClick={() => toggleArrayItem(data.personalGoals, goal, (goals) => setData({ ...data, personalGoals: goals }))}
+                  onClick={() => toggleArrayItem(data.personalGoals, goal, (value) => setData({ ...data, personalGoals: value }))}
                 >
                   {goal}
                 </Badge>
@@ -278,49 +277,51 @@ export default function Onboarding() {
           </div>
         );
 
-      case 6:
+      case 5:
         return (
           <div className="space-y-4">
-            <Label>What's your personality style?</Label>
+            <Label>What's your style?</Label>
+            <p className="text-sm text-muted-foreground">How do you typically show up in life?</p>
             <RadioGroup
               value={data.personalityStyle}
               onValueChange={(value: any) => setData({ ...data, personalityStyle: value })}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="introvert" id="introvert" />
-                <Label htmlFor="introvert">Introvert</Label>
+                <Label htmlFor="introvert">Introvert - I recharge solo</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="extrovert" id="extrovert" />
-                <Label htmlFor="extrovert">Extrovert</Label>
+                <Label htmlFor="extrovert">Extrovert - I thrive with people</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="thinker" id="thinker" />
-                <Label htmlFor="thinker">Thinker</Label>
+                <Label htmlFor="thinker">Thinker - Logic first</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="feeler" id="feeler" />
-                <Label htmlFor="feeler">Feeler</Label>
+                <Label htmlFor="feeler">Feeler - Emotions first</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="mixed" id="mixed" />
-                <Label htmlFor="mixed">A bit of everything</Label>
+                <Label htmlFor="mixed">Mixed - A bit of everything</Label>
               </div>
             </RadioGroup>
           </div>
         );
 
-      case 7:
+      case 6:
         return (
           <div className="space-y-4">
-            <Label>Choose keywords for check-ins (Select words that resonate)</Label>
+            <Label>How do you want to check in?</Label>
+            <p className="text-sm text-muted-foreground">Pick the words you'll use when you need support. (Select all that apply)</p>
             <div className="flex flex-wrap gap-2">
               {checkInKeywordsOptions.map((keyword) => (
                 <Badge
                   key={keyword}
                   variant={data.checkInKeywords.includes(keyword) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => toggleArrayItem(data.checkInKeywords, keyword, (keywords) => setData({ ...data, checkInKeywords: keywords }))}
+                  className="cursor-pointer capitalize"
+                  onClick={() => toggleArrayItem(data.checkInKeywords, keyword, (value) => setData({ ...data, checkInKeywords: value }))}
                 >
                   {keyword}
                 </Badge>
@@ -340,7 +341,7 @@ export default function Onboarding() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>SoulScan Quiz</CardTitle>
+              <CardTitle>Quick Check-In</CardTitle>
               <CardDescription>Step {step + 1} of {steps.length}</CardDescription>
             </div>
             <div className="text-right">
@@ -351,8 +352,8 @@ export default function Onboarding() {
         </CardHeader>
         <CardContent className="space-y-6">
           {renderStep()}
-          
-          <div className="flex justify-between pt-6">
+
+          <div className="flex justify-between pt-4">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -363,11 +364,10 @@ export default function Onboarding() {
             </Button>
             <Button
               onClick={handleNext}
-              variant="spiritual"
               disabled={loading}
             >
               {step === steps.length - 1 ? 'Complete' : 'Next'}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {step !== steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         </CardContent>
