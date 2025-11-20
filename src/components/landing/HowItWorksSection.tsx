@@ -11,7 +11,7 @@ const HowItWorksSection = () => {
   }, {
     icon: Brain,
     title: "Take the SoulScan",
-    description: "A 1-minute personalized check-in to understand your mindset, emotional state, and personal goals.",
+    description: "A quick 1-minute check-in that helps you get clear on how you're feeling, what's on your mind, and what you're working toward—so you can stay aligned with what matters most to you.",
     step: "02"
   }, {
     icon: Activity,
