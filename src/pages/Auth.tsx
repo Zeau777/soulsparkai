@@ -12,62 +12,20 @@ import PricingPlanSelector from '@/components/partner-admin/PricingPlanSelector'
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isOrgSignUp, setIsOrgSignUp] = useState(false);
-  const [isPartnerMode, setIsPartnerMode] = useState(false);
   const [selectedPricingPlan, setSelectedPricingPlan] = useState<any>(null);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { isOrgAdmin, loading: orgLoading } = useOrgAdmin();
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isPartner = urlParams.get('partner') === 'true';
     const hash = window.location.hash.replace('#', '');
-    
-    setIsPartnerMode(isPartner);
-    
     if (hash === 'signup') {
       setIsSignUp(true);
-      if (isPartner) {
-        setIsOrgSignUp(true);
-      }
     }
   }, []);
 
-  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
-    setAuthLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth`,
-        },
-      });
-      
-      if (error) {
-        const message = (error as any).message?.includes('provider is not enabled')
-          ? 'This sign-in method is disabled. Enable the provider in Supabase Auth > Providers and try again.'
-          : (error as any).message;
-        toast({
-          title: "Sign in failed",
-          description: message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Sign in failed",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   const handleEmailAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -83,7 +41,7 @@ export default function Auth() {
       if (isSignUp) {
         const metadata = {
           full_name: fullName,
-          ...(organization && { organization })
+          organization
         };
         
         const { error } = await signUp(email, password, metadata);
@@ -102,8 +60,8 @@ export default function Auth() {
             variant: "destructive",
           });
         } else {
-          // If this is an organization signup, create the organization
-          if (isOrgSignUp && organization && selectedPricingPlan && userData) {
+          // Create the organization
+          if (organization && selectedPricingPlan && userData) {
             try {
               // Validate that email domain matches company name
               const emailDomain = email.split('@')[1];
@@ -141,11 +99,6 @@ export default function Auth() {
                 variant: "destructive",
               });
             }
-          } else {
-            toast({
-              title: "Welcome to SoulSpark AI!",
-              description: "Check your email to confirm your account, then sign in.",
-            });
           }
           setTimeout(() => navigate('/'), 1000);
         }
@@ -159,8 +112,8 @@ export default function Auth() {
             variant: "destructive",
           });
         } else {
-          // Redirect to role selection page for easy testing
-          navigate('/role-selection');
+          // Redirect to admin dashboard for organization accounts
+          navigate('/admin');
         }
       }
     } catch (error) {
@@ -194,48 +147,25 @@ export default function Auth() {
 
         {/* Auth Options */}
         <div className="space-y-4">
-          {/* Create Account / Sign In Button */}
-          {!isPartnerMode && (
-            <div className="space-y-2">
-              <Button
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setIsOrgSignUp(false);
-                  setSelectedPricingPlan(null);
-                }}
-                className="w-full bg-card hover:bg-muted text-foreground border border-border font-medium py-3 rounded-full"
-              >
-                {isSignUp ? 'Sign In' : 'Create account'}
-              </Button>
-            </div>
-          )}
-          
-          {(isPartnerMode || (!isSignUp && !isPartnerMode)) && (
-            <div className="space-y-2">
-              <Button
-                onClick={() => {
-                  setIsSignUp(true);
-                  setIsOrgSignUp(true);
-                }}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-full"
-              >
-                Create Organization Account
-              </Button>
-            </div>
-          )}
+          <div className="space-y-2">
+            <Button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="w-full bg-[hsl(var(--brand-orange))] hover:bg-[hsl(var(--brand-orange))]/90 text-white font-medium py-3 rounded-full"
+            >
+              {isSignUp ? 'Sign In to Organization' : 'Create Organization Account'}
+            </Button>
+          </div>
 
           {/* Email Form */}
           {isSignUp && (
             <form onSubmit={handleEmailAuth} className="space-y-6 mt-6">
               {/* Pricing Plan Selection for Organization Signup */}
-              {isOrgSignUp && (
-                <div className="space-y-4">
-                  <PricingPlanSelector
-                    selectedPlan={selectedPricingPlan?.id || null}
-                    onPlanSelect={setSelectedPricingPlan}
-                  />
-                </div>
-              )}
+              <div className="space-y-4">
+                <PricingPlanSelector
+                  selectedPlan={selectedPricingPlan?.id || null}
+                  onPlanSelect={setSelectedPricingPlan}
+                />
+              </div>
               
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -250,50 +180,31 @@ export default function Auth() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">
-                    {isOrgSignUp ? "Company Email" : "Email"}
-                  </Label>
+                  <Label htmlFor="email" className="text-foreground">Company Email</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder={isOrgSignUp ? "your@company.com" : "your@email.com"}
+                    placeholder="your@company.com"
                     required
                     className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-md"
                   />
                 </div>
                 
-                {isOrgSignUp && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="organization" className="text-foreground">Company Name</Label>
-                      <Input
-                        id="organization"
-                        name="organization"
-                        type="text"
-                        placeholder="Your company name"
-                        required
-                        className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-md"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Your email domain should match your company name
-                      </p>
-                    </div>
-                  </>
-                )}
-                
-                {!isOrgSignUp && (
-                  <div className="space-y-2">
-                    <Label htmlFor="organization" className="text-foreground">Organization (Optional)</Label>
-                    <Input
-                      id="organization"
-                      name="organization"
-                      type="text"
-                      placeholder="Your organization"
-                      className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-md"
-                    />
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <Label htmlFor="organization" className="text-foreground">Company Name</Label>
+                  <Input
+                    id="organization"
+                    name="organization"
+                    type="text"
+                    placeholder="Your company name"
+                    required
+                    className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-md"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Your email domain should match your company name
+                  </p>
+                </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-foreground">Password</Label>
@@ -322,14 +233,14 @@ export default function Auth() {
                 
                 <Button
                   type="submit"
-                  disabled={loading || (isOrgSignUp && !selectedPricingPlan)}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-full"
+                  disabled={loading || !selectedPricingPlan}
+                  className="w-full bg-[hsl(var(--brand-orange))] hover:bg-[hsl(var(--brand-orange))]/90 text-white font-medium py-3 rounded-full"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isOrgSignUp ? 'Create Organization' : 'Create account'}
+                  Create Organization
                 </Button>
                 
-                {isOrgSignUp && !selectedPricingPlan && (
+                {!selectedPricingPlan && (
                   <p className="text-sm text-muted-foreground text-center">
                     Please select a pricing plan to continue
                   </p>
@@ -357,20 +268,20 @@ export default function Auth() {
         </div>
 
         {/* Already have account section */}
-        <div className="text-center space-y-4 pt-8">
-          <h3 className="text-xl font-bold text-foreground">
-            Already have an account?
-          </h3>
-          
-          {!isSignUp && (
+        {!isSignUp && (
+          <div className="text-center space-y-4 pt-8">
+            <h3 className="text-xl font-bold text-foreground">
+              Already have an organization account?
+            </h3>
+            
             <form onSubmit={handleEmailAuth} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="signin-email" className="text-foreground">Email</Label>
+                <Label htmlFor="signin-email" className="text-foreground">Company Email</Label>
                 <Input
                   id="signin-email"
                   name="email"
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder="your@company.com"
                   required
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-md"
                 />
@@ -405,11 +316,11 @@ export default function Auth() {
                 className="w-full bg-transparent border border-border hover:bg-muted text-foreground font-medium py-3 rounded-full"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign in
+                Sign in to Organization
               </Button>
             </form>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

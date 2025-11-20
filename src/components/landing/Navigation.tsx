@@ -54,8 +54,13 @@ const Navigation = () => {
             >
               Book a Demo
             </Button>
-            <Button variant="spiritual" size="sm" onClick={() => navigate('/auth')}>
-              Join Now
+            <Button 
+              variant="spiritual" 
+              size="sm" 
+              onClick={() => navigate('/auth')}
+              className="bg-[hsl(var(--brand-orange))] hover:bg-[hsl(var(--brand-orange))]/90 text-white"
+            >
+              Partner Login
             </Button>
           </div>
 
