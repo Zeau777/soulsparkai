@@ -1188,16 +1188,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_push_subscriptions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      current_user_email: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      cleanup_push_subscriptions: { Args: never; Returns: undefined }
+      current_user_email: { Args: never; Returns: string }
       get_admin_dashboard_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_organizations: number
           pending_payments: number
