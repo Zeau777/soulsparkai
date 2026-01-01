@@ -8,12 +8,6 @@ import { useOrgAdmin } from "@/hooks/useOrgAdmin";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
-import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
-import ForYou from "./pages/ForYou";
-import Chat from "./pages/Chat";
-import Profile from "./pages/Profile";
-import Community from "./pages/Community";
 import AdminDashboard from "./pages/AdminDashboard";
 import PlatformAnalytics from "./pages/PlatformAnalytics";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -23,19 +17,17 @@ import Partners from "./pages/Partners";
 import Pricing from "./pages/Pricing";
 import PartnerAdminPreview from "./pages/PartnerAdminPreview";
 import BookDemo from "./pages/BookDemo";
-import PrayerRooms from "./pages/PrayerRooms";
-import Journal from "./pages/Journal";
-import RoleSelection from "./pages/RoleSelection";
 import NotFound from "./pages/NotFound";
 import { useOrgLink } from "@/hooks/useOrgLink";
 import OrgAccessBanner from "@/components/OrgAccessBanner";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const { isOrgAdmin, loading: orgLoading } = useOrgAdmin();
   
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Loading...</div>
@@ -43,7 +35,20 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   
-  return user ? <>{children}</> : <Navigate to="/auth" replace />;
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  if (!isOrgAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4 p-8 text-center">
+        <h1 className="text-2xl font-bold">Access Restricted</h1>
+        <p className="text-muted-foreground">This platform is for organization administrators only. Please contact your organization admin for access.</p>
+      </div>
+    );
+  }
+  
+  return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
@@ -58,8 +63,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     );
   }
   
-  if (user) {
-    return <Navigate to={isOrgAdmin ? "/admin" : "/dashboard"} replace />;
+  if (user && isOrgAdmin) {
+    return <Navigate to="/admin" replace />;
   }
   
   return <>{children}</>;
@@ -91,18 +96,9 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/partner-preview" element={<PartnerAdminPreview />} />
             <Route path="/book-demo" element={<BookDemo />} />
-            <Route path="/role-selection" element={<ProtectedRoute><RoleSelection /></ProtectedRoute>} />
-            
-            {/* Protected routes */}
-          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/for-you" element={<ProtectedRoute><ForYou /></ProtectedRoute>} />
-          <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-          <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute><PlatformAnalytics /></ProtectedRoute>} />
-          <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+            {/* Admin-only routes */}
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/analytics" element={<AdminRoute><PlatformAnalytics /></AdminRoute>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

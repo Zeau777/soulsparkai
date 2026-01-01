@@ -139,8 +139,8 @@ const Navigation = () => {
               >
                 Book a Demo
               </Button>
-              <Button variant="spiritual" size="sm" className="w-full" onClick={() => navigate('/auth')}>
-                Join Now
+              <Button variant="spiritual" size="sm" className="w-full bg-[hsl(var(--brand-orange))] hover:bg-[hsl(var(--brand-orange))]/90 text-white" onClick={() => navigate('/auth')}>
+                Partner Login
               </Button>
             </div>
           </div>
